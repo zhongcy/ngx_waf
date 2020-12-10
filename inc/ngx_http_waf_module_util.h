@@ -41,45 +41,45 @@ static char* to_c_str(u_char* destination, ngx_str_t ngx_str);
 */
 
 static ngx_int_t parse_ipv4(ngx_str_t text, ipv4_t* ipv4) {
-    size_t prefix = 0;
-    size_t num = 0;
-    size_t suffix = 32;
-    u_char c;
-    int is_in_suffix = FALSE;
+    uint32_t prefix = 0;
+    uint32_t suffix = 0;
     memcpy(ipv4->text, text.data, text.len);
     ipv4->text[text.len] = '\0';
-    for (size_t i = 0; i < text.len; i++) {
-        c = text.data[i];
-        if (c >= '0' && c <= '9') {
-            if (is_in_suffix == TRUE) {
-                suffix = suffix * 10 + (c - '0');
-            }
-            else {
-                num = num * 10 + (c - '0');
-            }
-        }
-        else if (c == '/') {
-            is_in_suffix = TRUE;
-            suffix = 0;
-        }
-        else if (c == '.') {
-            prefix = (num << 24) | (prefix >> 8);
-            num = 0;
-        }
-        else if (c != '\r' && c != '\n') {
-            return FAIL;
-        }
+
+    u_char* c = ipv4->text;
+    ngx_uint_t prefixLen = 0;
+    while (c != NULL && *c != '/') {
+        ++prefixLen;
+        ++c;
     }
-    prefix = (num << 24) | (prefix >> 8);
-    size_t i = suffix, j = 1;
-    suffix = 0;
-    while (i > 0) {
-        suffix |= j;
-        j <<= 1;
-        --i;
+
+    char prefixText[32];
+    struct in_addr addr4;
+    if (c == NULL && prefixLen == text.len) {
+        memcpy(prefixText, ipv4->text, prefixLen);
+    } 
+    else if (c != NULL && *c == '/' && prefixLen >= 7) {
+        /* 0.0.0.0 的长度刚好是 7 */
+        memcpy(prefixText, ipv4->text, prefixLen);
+        prefixText[prefixLen] = '\0';
+    } 
+    else {
+        return FAIL;
     }
-    ipv4->prefix = prefix & suffix;
+
+    inet_pton(AF_INET6, prefixText, &addr4);
+    prefix = addr4.s_addr;
+
+    while (c != NULL && *c != '\0') {
+        suffix = suffix * 10 + (*c - '0');
+    }
+    if (suffix == 0) {
+        suffix = 32;
+    }
+
+    ipv4->prefix = prefix;
     ipv4->suffix = suffix;
+
     return SUCCESS;
 }
 
