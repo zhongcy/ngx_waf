@@ -1,16 +1,59 @@
+/**
+ * @file ngx_http_waf_module_ip_trie.h
+ * @brief IP 前缀树。
+*/
+
 #ifndef NGX_HTTP_WAF_MODULE_IP_TRIE_h
 #define NGX_HTTP_WAF_MODULE_IP_TRIE_h
 
 #include <ngx_http_waf_module_macro.h>
 #include <ngx_http_waf_module_type.h>
 
+/**
+ * @defgroup ip_trie IP 前缀树
+ * @addtogroup ip_trie IP 前缀树
+ * @{
+*/
+
+/**
+ * @brief 初始化一个前缀树。
+ * @param[out] trie 要初始化的前缀树。
+ * @param[in] memory_pool 初始化、添加、删除节点所用的内存池。
+ * @param[in] ip_type 存储的 IP 地址类型。
+ * @return 返回 SUCCESS 表示初始化成功，反之为 FAIL。
+ * @retval SUCCESS 初始化成功。
+ * @retval FAIL 初始化失败。
+*/
 static ngx_int_t ip_trie_init(ip_trie_t** trie, ngx_pool_t* memory_pool, int ip_type);
 
+/**
+ * @brief 插入一个 IP 地址。
+ * @param[in] trie 要操作的前缀树。
+ * @param[in] inx_addr IP 地址。
+ * @param[in] suffix_num IP 网段长度。
+ * @param[in] text IP 的字符串形式。
+ * @return 返回 SUCCESS 表示成功，反之为 FAIL。
+ * @retval SUCCESS 成功。
+ * @retval FAIL 失败。
+*/
 static ngx_int_t ip_trie_add(ip_trie_t* trie, inx_addr_t* inx_addr, uint32_t suffix_num, u_char* text);
 
+/**
+ * @brief 查找 IP 是否存在。
+ * @param[in] trie 要操作的前缀树。
+ * @param[in] inx_addr IP 地址。
+ * @param[out] ip_trie_node 找到之后此指针将指向对应的节点。
+ * @return 返回 SUCCESS 表示找到，反之为 FAIL。
+ * @retval SUCCESS 找到。
+ * @retval FAIL 没找到。
+*/
 static ngx_int_t ip_trie_find(ip_trie_t* trie, inx_addr_t* inx_addr, ip_trie_node_t** ip_trie_node);
 
 // static ngx_int_t ip_trie_delete(ip_trie_t* trie, inx_addr_t* inx_addr);
+
+/**
+ * @}
+*/
 
 
 static ngx_int_t ip_trie_init(ip_trie_t** trie, ngx_pool_t* memory_pool, int ip_type) {

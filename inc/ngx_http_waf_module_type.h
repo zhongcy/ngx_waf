@@ -15,22 +15,34 @@
 #ifndef NGX_HTTP_WAF_MODULE_TYPE_H
 #define NGX_HTTP_WAF_MODULE_TYPE_H
 
+/**
+ * @struct inx_addr_t
+ * @brief 代表 ipv4 或 ipv6 地址。
+*/
 typedef union {
     struct in_addr ipv4;
     struct in6_addr ipv6;
 } inx_addr_t;
 
+/**
+ * @struct ip_trie_node_t
+ * @brief 前缀树节点。
+*/
 typedef struct _ip_trie_node_t{
     int is_ip; /**< 如果为 TRUE 则代表此节点也代表一个 IP，反之则为 FALSE */
-    struct _ip_trie_node_t* left;
-    struct _ip_trie_node_t* right;
-    u_char text[64];
+    struct _ip_trie_node_t* left; /**< 左子树代表当前位为零 */
+    struct _ip_trie_node_t* right; /**< 右子树代表当前位为一 */
+    u_char text[64]; /**< ip 地址的字符串形式，用于输入日志。 */
 } ip_trie_node_t;
 
+/**
+ * @struct ip_trie_t
+ * @brief 前缀树。
+*/
 typedef struct {
-    int ip_type;
-    ip_trie_node_t* root;
-    size_t size;
+    int ip_type; /**< 存储的 IP 地址的类型。 */
+    ip_trie_node_t* root; /**< 前缀树树根。 */
+    size_t size; /**< 已经存储的 IP 数量。 */
     ngx_pool_t *memory_pool; /**< 用于初始化、添加和删除节点的内存池 */
 } ip_trie_t;
 

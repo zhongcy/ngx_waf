@@ -81,13 +81,13 @@ static void* ngx_http_waf_create_srv_conf(ngx_conf_t* cf);
 static ngx_int_t ngx_http_waf_init_after_load_config(ngx_conf_t* cf);
 
 /**
- * @brief 读取指定文件的内容到数组中。
+ * @brief 读取指定文件的内容到容器中。
  * @param[in] file_name 要读取的配置文件完整路径。
  * @param[out] container 存放读取结果的容器。
  * @param[in] mode 读取模式
- * @li 当 mode = 0 时会将读取到文本编译成正则表达式再存储。
- * @li 当 mode = 1 时会将读取到的文本转化为 ipv4_t 再存储。
- * @li 当 mode = 2 时会将读取到的文本转化为 ipv6_t 再存储。
+ * @li 当 mode = 0 时会将读取到文本编译成正则表达式再存储。容器类型为 ngx_array_t。
+ * @li 当 mode = 1 时会将读取到的文本转化为 ipv4_t 再存储。容器类型为 ip_trie_t。
+ * @li 当 mode = 2 时会将读取到的文本转化为 ipv6_t 再存储。容器类型为 ip_trie_t。
  * @return 读取操作的结果。
  * @retval SUCCESS 读取成功。
  * @retval FAIL 读取中发生错误。
